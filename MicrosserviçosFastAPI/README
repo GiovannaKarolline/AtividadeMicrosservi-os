@@ -1,0 +1,38 @@
+**Comunicação Síncrona entre Microsserviços de Filmes e Ingressos**
+
+Nesse repositório estão dois serviços que se comunicam através de uma API FastAPI.
+Um deles atua como serviço provedor de dados (Filmes), enquanto o segundo atua como consumidor (Ingressos).
+O serviço de ingressos precisa das informações do filme para completar as informações de cada ingresso comprado (título e gênero do filme).
+Sem essas informações, o ingresso teria apenas o ID do filme e o nome do comprador.
+
+**Como esse sistema funciona?**
+
+Os dois microsserviços estão dentro de uma mesma pasta, a qual também possui o arquivo "docker-compose.yml".
+Cada microsserviço é representado por uma pasta com seu próprio nome, e dentro de cada uma existem três arquivos:
+    - dockerfile: permite que o Docker crie um container isolado para o microsserviço e peça para que os demais arquivos da pasta sejam executados/utilizados;
+    - main.py: define o que o serviço faz e o que ele possui;
+    - requirements.txt: define quais bibliotecas o serviço precisa para funcionar.
+
+![alt text](image-2.png)
+
+No arquivo main.py de Ingressos, há um endpoint para conseguir realizar as requisições (pedidos de informação) para o serviço de filmes.
+Essas requisições são feitas usando a biblioteca "Requests" e acontecem de forma síncrona (Ingressos espera receber as informações de Filmes antes de continuar).
+Já no arquivo main.py de Filmes, é aberto o canal para que essas requisições sejam recebidas pelo serviço. Nesse caso, há uma resposta pronta para as requisições, não possuindo conexão com um banco de dados.
+
+![alt text](image-3.png)
+![alt text](image-4.png)
+
+**Tratamento de erros**
+
+Para evitar que o serviço de ingressos parasse totalmente quando o serviço de filmes falhasse, foi posto um aviso (Exception) para quando o sistema de filmes demorar mais de dois segundos para enviar a resposta, mostrando que houve um erro e que o sistema de filmes está indisponível.
+
+![alt text](image-1.png)
+
+**Quais problemas podem ocorrer nesse tipo de implementação?**
+
+A lentidão é o principal problema relacionado à esse tipo de implementação. Por conta da comunicação síncrona, enquanto o serviço provedor estiver indisponível, o serviço consumidor não será útil, frustrando o usuário e impedindo que outros serviços de exercerem suas funções (nesse caso, poderia acontecer do serviço de vendas de ingresso não funcionar sem o ingresso completo). Essa dependência de um serviço pelo outro demonstra o forte acoplamento presente nesse sistema, o que costuma causa esses efeitos em cascata.
+Além disso, esse tipo de comunicação possui um alto consumo de recursos (conexão, memória), o que contribui para a lentidão em seu funcionamento (latência).
+
+Não foi possível realizar os testes por conta do computador que utilizei para a atividade, que bloqueou o meu acesso ao Docker:
+
+![alt text](image.png)

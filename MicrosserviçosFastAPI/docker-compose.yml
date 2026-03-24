@@ -1,0 +1,25 @@
+services:
+
+  filmes:
+    build: ./filmes
+    container_name: ms-filmes
+    ports:
+      - "8001:8000"
+    networks:
+      - ms-network
+
+  ingressos:
+    build: ./ingressos
+    container_name: ms-ingressos
+    ports:
+      - "8000:8000"
+    depends_on:
+      - filmes
+    environment:
+      - FILMES_URL=http://filmes:8000
+    networks:
+      - ms-network
+
+networks:
+  ms-network:
+    driver: bridge
